@@ -14,18 +14,20 @@
   limitations under the License.
 */
 
-const wrappers = require('pouchdb-wrappers');
-const nodify = require('promise-nodify');
-const Promise = require('bluebird');
-const getSize = Promise.promisify(require('get-folder-size'));
-const fileBytes = require('file-bytes');
+"use strict";
+
+var wrappers = require('pouchdb-wrappers');
+var nodify = require('promise-nodify');
+var Promise = require('bluebird');
+var getSize = Promise.promisify(require('get-folder-size'));
+var fileBytes = require('file-bytes');
 
 exports.installSizeWrapper = function () {
-  const db = this;
+  var db = this;
 
   wrappers.installWrapperMethods(db, {
     info: function (orig, args) {
-      let resp;
+      var resp;
       return orig().then(function (info) {
         resp = info;
 
@@ -44,35 +46,32 @@ exports.installSizeWrapper = function () {
 };
 
 exports.getDiskSize = function (callback) {
-  const db = this;
-  let promise;
+  var db = this;
+  var promise;
+  var prefix = db.__opts.prefix || '';
+  var path = prefix + db._db_name;
+  var then = db.then || function (cb) {
+    return cb();
+  };
 
   if (db.type() === 'leveldb') {
-    const prefix = db.__opts.prefix || '';
-    const path = prefix + db._db_name;
-
     // wait until the database is ready. Necessary for at least sqldown,
     // which doesn't write anything to disk sooner.
-    const then = db.then || function (cb) {
-      return cb();
-    };
+
     promise = then.call(db, function () {
       return getSize(path);
     });
-  } else if (db.type() === 'webSQL') {
-    const prefix = db.__opts.prefix || '';
-    const path = prefix + db._db_name;
+  } else if (db.type() === 'websql') {
 
     // wait until the database is ready. Necessary for at least sqldown,
     // which doesn't write anything to disk sooner.
-    const then = db.then || function (cb) {
-      return cb();
-    };
+
     promise = then.call(db, function () {
+      console.log('==>>', path + '.db');
       return fileBytes(path + '.db');
     });
   } else {
-    const msg = "Can't get the database size for database type '" + db.type() + "'!";
+    var msg = "Can't get the database size for database type '" + db.type() + "'!";
     promise = Promise.reject(new Error(msg));
   }
 
