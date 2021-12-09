@@ -14,19 +14,18 @@
   limitations under the License.
 */
 
-"use strict";
-
-var wrappers = require('pouchdb-wrappers');
-var nodify = require('promise-nodify');
-var Promise = require('bluebird');
-var getSize = Promise.promisify(require('get-folder-size'));
+const wrappers = require('pouchdb-wrappers');
+const nodify = require('promise-nodify');
+const Promise = require('bluebird');
+const getSize = Promise.promisify(require('get-folder-size'));
+const fileBytes = require('file-bytes');
 
 exports.installSizeWrapper = function () {
-  var db = this;
+  const db = this;
 
   wrappers.installWrapperMethods(db, {
     info: function (orig, args) {
-      var resp;
+      let resp;
       return orig().then(function (info) {
         resp = info;
 
@@ -45,23 +44,35 @@ exports.installSizeWrapper = function () {
 };
 
 exports.getDiskSize = function (callback) {
-  var db = this;
-  var promise;
+  const db = this;
+  let promise;
 
   if (db.type() === 'leveldb') {
-    var prefix = db.__opts.prefix || '';
-    var path = prefix + db._db_name;
+    const prefix = db.__opts.prefix || '';
+    const path = prefix + db._db_name;
 
     // wait until the database is ready. Necessary for at least sqldown,
     // which doesn't write anything to disk sooner.
-    var then = db.then || function (cb) {
+    const then = db.then || function (cb) {
       return cb();
     };
     promise = then.call(db, function () {
       return getSize(path);
     });
+  } else if (db.type() === 'webSQL') {
+    const prefix = db.__opts.prefix || '';
+    const path = prefix + db._db_name;
+
+    // wait until the database is ready. Necessary for at least sqldown,
+    // which doesn't write anything to disk sooner.
+    const then = db.then || function (cb) {
+      return cb();
+    };
+    promise = then.call(db, function () {
+      return fileBytes(path + '.db');
+    });
   } else {
-    var msg = "Can't get the database size for database type '" + db.type() + "'!";
+    const msg = "Can't get the database size for database type '" + db.type() + "'!";
     promise = Promise.reject(new Error(msg));
   }
 

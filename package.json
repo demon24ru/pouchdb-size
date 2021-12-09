@@ -4,10 +4,11 @@
   "description": "Adds disk_size to info()'s output for your leveldown backed PouchDB's.",
   "main": "index.js",
   "dependencies": {
-    "bluebird": "^3.2.1",
-    "get-folder-size": "^1.0.0",
-    "pouchdb-wrappers": "^1.2.0",
-    "promise-nodify": "^1.0.1"
+    "bluebird": "^3.7.2",
+    "get-folder-size": "^3.1.0",
+    "pouchdb-wrappers": "^5.0.0",
+    "promise-nodify": "^1.0.2",
+    "file-bytes": "^2.0.3"
   },
   "devDependencies": {
     "chai": "^3.5.0",
@@ -19,9 +20,8 @@
     "medeadown": "^1.1.1",
     "memdown": "^1.0.0",
     "mocha": "^2.0.1",
-    "pouchdb": "^5.2.1",
-    "sqldown": "^2.1.0",
-    "sqlite3": "^3.0.4"
+    "pouchdb": "^7.2.1",
+    "sqldown": "^2.1.0"
   },
   "scripts": {
     "test": "npm run coverage && npm run jshint",
@@ -42,7 +42,7 @@
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/marten-de-vries/pouchdb-size.git"
+    "url": "https://github.com/demon24ru/pouchdb-size.git"
   },
   "author": "Marten de Vries",
   "license": "Apache-2.0"
